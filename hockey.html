@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex Hockey Manager - Pro Simulation Engine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>APEX HOCKEY</h2>
+                <span>Simulation Engine v2026.1</span>
+            </div>
+            <div class="user-profile-card">
+                <h4 id="user-team-display">Loading Team...</h4>
+                <p>Cap Space: <span id="user-cap-display">$0.00M</span></p>
+                <p>Record: <span id="user-record-display">0-0-0</span></p>
+            </div>
+            <nav class="sidebar-menu">
+                <button onclick="ui.switchTab('dashboard')" class="nav-item active" id="tab-dashboard">Core Dashboard</button>
+                <button onclick="ui.switchTab('roster')" class="nav-item" id="tab-roster">Roster Management</button>
+                <button onclick="ui.switchTab('lines')" class="nav-item" id="tab-lines">Lines & Chemistry</button>
+                <button onclick="ui.switchTab('schedule')" class="nav-item" id="tab-schedule">League Schedule</button>
+                <button onclick="ui.switchTab('standings')" class="nav-item" id="tab-standings">Standings & Analytics</button>
+                <button onclick="ui.switchTab('trade')" class="nav-item" id="tab-trade">Trade Negotiation</button>
+                <button onclick="ui.switchTab('draft')" class="nav-item" id="tab-draft">Entry Draft Pool</button>
+            </nav>
+        </aside>
+
+        <main class="workspace">
+            <section id="view-dashboard" class="view-panel active">
+                <div class="view-header">
+                    <h1>Front Office Dashboard</h1>
+                    <div class="action-group">
+                        <button class="btn btn-accent" onclick="simEngine.simDays(1)">Simulate 1 Day</button>
+                        <button class="btn btn-primary" onclick="simEngine.simDays(7)">Simulate 1 Week</button>
+                    </div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card status-card">
+                        <h3>Team Health Metric</h3>
+                        <div class="stat-row"><span>Power Play %:</span><strong id="dash-pp">0.0%</strong></div>
+                        <div class="stat-row"><span>Penalty Kill %:</span><strong id="dash-pk">0.0%</strong></div>
+                        <div class="stat-row"><span>Injured Reserves:</span><strong id="dash-injuries" class="text-success">0 Players</strong></div>
+                    </div>
+                    <div class="dashboard-card central-feed">
+                        <h3>League Ticker & Transaction Wire</h3>
+                        <div id="ticker-box" class="ticker-box">
+                            <p class="ticker-item system-msg">Simulation initialized. All 32 franchise data matrices populated cleanly.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-roster" class="view-panel">
+                <div class="view-header">
+                    <h1>Roster Management Matrix</h1>
+                    <select id="roster-team-filter" class="form-select" onchange="ui.renderRoster()"></select>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Pos</th>
+                                <th>Archetype</th>
+                                <th>Age</th>
+                                <th>OVR</th>
+                                <th>Salary</th>
+                                <th>Term</th>
+                                <th>POT</th>
+                                <th>Condition</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roster-table-rows"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-lines" class="view-panel">
+                <div class="view-header">
+                    <h1>Line Combinations & Tactical Chemistry</h1>
+                    <button class="btn btn-primary" onclick="ui.optimizeLineups()">Auto-Optimize Lines</button>
+                </div>
+                <div id="lines-workspace" class="lines-grid">
+                    </div>
+            </section>
+
+            <section id="view-schedule" class="view-panel">
+                <div class="view-header">
+                    <h1>League Schedule & Results</h1>
+                    <div class="filter-group">
+                        <span>Current Day: <strong id="schedule-day-indicator">1</strong> / 180</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Away Team</th>
+                                <th>Home Team</th>
+                                <th>Status/Result</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-table-rows"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-standings" class="view-panel">
+                <div class="view-header">
+                    <h1>NHL Real-Time League Standings</h1>
+                </div>
+                <div class="tabs-sub">
+                    <button class="btn btn-sm btn-secondary active" id="btn-stand-league" onclick="ui.renderStandings('league')">League</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-stand-conf" onclick="ui.renderStandings('conference')">Conference</button>
+                    <button class="btn btn-sm btn-secondary" id="btn-stand-div" onclick="ui.renderStandings('division')">Division</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Franchise Team</th>
+                                <th>GP</th>
+                                <th>W</th>
+                                <th>L</th>
+                                <th>OTL</th>
+                                <th>PTS</th>
+                                <th>GF</th>
+                                <th>GA</th>
+                                <th>DIFF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standings-table-rows"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="view-trade" class="view-panel">
+                <div class="view-header">
+                    <h1>Advanced AI Trade Negotiation Desk</h1>
+                </div>
+                <div class="trade-interface-grid">
+                    <div class="trade-block">
+                        <h3>Your Offering Assets</h3>
+                        <select id="trade-user-asset-select" class="form-select multi" multiple size="8"></select>
+                    </div>
+                    <div class="trade-block">
+                        <h3>Target Trading Partner</h3>
+                        <select id="trade-partner-team-select" class="form-select" onchange="ui.populatePartnerAssets()"></select>
+                        <h4 class="margin-top">Target Assets Desired</h4>
+                        <select id="trade-partner-asset-select" class="form-select multi" multiple size="6"></select>
+                    </div>
+                </div>
+                <div class="trade-action-bar">
+                    <button class="btn btn-accent btn-lg" onclick="simEngine.evaluateTradeProposal()">Submit Proposal to AI Evaluation Engine</button>
+                    <div id="trade-valuation-feedback" class="feedback-panel">Awaiting asset inputs for calculation...</div>
+                </div>
+            </section>
+
+            <section id="view-draft" class="view-panel">
+                <div class="view-header">
+                    <h1>NHL Entry Draft Board (Class of 2026)</h1>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Prospect Name</th>
+                                <th>Pos</th>
+                                <th>Projected Archetype</th>
+                                <th>OVR Value</th>
+                                <th>Potential Grade</th>
+                                <th>Scouting Accuracy</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="draft-table-rows"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="match-sim-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modal-match-title">Deterministic Live Arena Sim</h2>
+            </div>
+            <div class="modal-body">
+                <div class="scoreboard-hero">
+                    <div class="scoreboard-team text-left">
+                        <h3 id="modal-away-name">AWAY</h3>
+                        <span id="modal-away-score" class="score-digit">0</span>
+                        <p>Shots: <span id="modal-away-shots">0</span></p>
+                    </div>
+                    <div class="scoreboard-mid">
+                        <div id="modal-period-display" class="period-pill">PERIOD 1</div>
+                        <div id="modal-time-display">20:00</div>
+                    </div>
+                    <div class="scoreboard-team text-right">
+                        <h3 id="modal-home-name">HOME</h3>
+                        <span id="modal-home-score" class="score-digit">0</span>
+                        <p>Shots: <span id="modal-home-shots">0</span></p>
+                    </div>
+                </div>
+                <div id="modal-live-log" class="live-event-stream">
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-close-btn" class="btn btn-primary" disabled onclick="ui.closeModal()">Complete Simulation</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
